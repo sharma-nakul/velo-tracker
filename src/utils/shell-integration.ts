@@ -24,7 +24,7 @@ export const getShellConfig = (): ShellConfig => {
 export const installShellHook = async (shellConfig: ShellConfig): Promise<boolean> => {
   try {
     const hookContent = `
-# Velo Chat Logger integration
+# Velo Tracker integration
 function q() {
   if [[ "$1" == "chat" ]]; then
     # Extract AWS profile from arguments or environment
@@ -71,14 +71,17 @@ function q() {
       q_profile="default"
     fi
     
-    # Start logging session
-    velo-tracker start --profile "$aws_profile" --q-profile "$q_profile"
+    # Start logging session automatically
+    velo-tracker start --profile "$aws_profile" --q-profile "$q_profile" --auto-mode
     
     # Run the original command
     command q "$@"
+    local exit_code=$?
     
     # End logging session
-    velo-tracker end --profile "$aws_profile"
+    velo-tracker end --profile "$aws_profile" --auto-mode
+    
+    return $exit_code
   else
     # For other q commands, just pass through
     command q "$@"
@@ -89,9 +92,15 @@ function q() {
     const rcContent = await fs.readFile(shellConfig.rcFile, 'utf8');
     
     // Check if hook is already installed
-    if (rcContent.includes('# Velo Chat Logger integration')) {
+    if (rcContent.includes('# Velo Tracker integration')) {
       logger.info(`Shell hook already installed in ${shellConfig.rcFile}`);
       return true;
+    }
+    
+    // Remove old hook if it exists
+    if (rcContent.includes('# Velo Chat Logger integration')) {
+      logger.info(`Removing old Velo Chat Logger hook from ${shellConfig.rcFile}`);
+      await uninstallShellHook(shellConfig);
     }
     
     // Append hook to rc file
@@ -110,9 +119,20 @@ export const uninstallShellHook = async (shellConfig: ShellConfig): Promise<bool
   try {
     const rcContent = await fs.readFile(shellConfig.rcFile, 'utf8');
     
-    // Find the hook in the rc file
-    const startMarker = '# Velo Chat Logger integration';
-    const startIndex = rcContent.indexOf(startMarker);
+    // Find the hook in the rc file (check for both old and new names)
+    const oldStartMarker = '# Velo Chat Logger integration';
+    const newStartMarker = '# Velo Tracker integration';
+    
+    let startMarker = '';
+    let startIndex = -1;
+    
+    if (rcContent.includes(newStartMarker)) {
+      startMarker = newStartMarker;
+      startIndex = rcContent.indexOf(newStartMarker);
+    } else if (rcContent.includes(oldStartMarker)) {
+      startMarker = oldStartMarker;
+      startIndex = rcContent.indexOf(oldStartMarker);
+    }
     
     if (startIndex === -1) {
       logger.info(`No shell hook found in ${shellConfig.rcFile}`);

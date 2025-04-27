@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
 
-A powerful command-line tool for tracking and analyzing your Amazon Q Dev CLI sessions and feature development. Gain insights into your usage patterns, manage sessions across different AWS profiles, and optimize your workflow.
+A powerful command-line tool for tracking and analyzing your Amazon Q Dev CLI sessions, managing feature development, and integrating with AI chatbots. Gain insights into your usage patterns, manage sessions across different AWS profiles, and optimize your workflow.
 
 <p align="center">
   <img src="https://via.placeholder.com/800x400?text=Velo+Tracker" alt="Velo Tracker" width="600">
@@ -22,6 +22,7 @@ A powerful command-line tool for tracking and analyzing your Amazon Q Dev CLI se
 - **Shell Integration**: Works with both Bash and Zsh shells through simple hooks
 - **Data Organization**: Logs automatically organized by profile
 - **Cleanup Utilities**: Easily manage log storage with automatic cleanup options
+- **Log Compaction**: Compact old logs to save space while preserving usage statistics
 - **Usage Summaries**: Generate profile-based usage reports
 - **Cross-Platform**: Works on macOS, Linux, and Windows
 - **Homebrew Support**: Simple installation for macOS users
@@ -158,6 +159,12 @@ velo-tracker cleanup --days 60
 
 # Clean up logs for a specific profile
 velo-tracker cleanup --profile my-profile
+
+# Compact logs older than 30 days instead of deleting them
+velo-tracker cleanup --compact
+
+# Compact logs older than a specific number of days
+velo-tracker cleanup --days 60 --compact
 ```
 
 ### Homebrew

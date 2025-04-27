@@ -5,6 +5,7 @@ export interface Session {
   startTime: string;
   endTime: string | null;
   duration: number | null;
+  autoMode?: boolean;
 }
 
 export interface SessionSummary {
